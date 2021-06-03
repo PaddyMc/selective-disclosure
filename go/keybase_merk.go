@@ -35,8 +35,10 @@ func MerkleSimple() {
 	_ = tree.DOT(lf, bf)
 	//fmt.Println(dot)
 
+	proverData := data[1]
+
 	// verifing using the merkle proof
-	proof, err := tree.GenerateProof(data[2])
+	proof, err := tree.GenerateProof(proverData)
 	if err != nil {
 		panic(err)
 	}
@@ -47,7 +49,7 @@ func MerkleSimple() {
 	fmt.Printf(">>>> proof:\n%s\n", strings.Join(webproof, ":"))
 
 	verified, err := merkletree.VerifyProofUsing(
-		data[2],
+		proverData,
 		proof,
 		root,
 		New(secret),
