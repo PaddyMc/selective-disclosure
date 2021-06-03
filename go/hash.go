@@ -25,11 +25,9 @@ func (h *HmacSha256) HashLength() int {
 }
 
 // Hash generates a Keccak-256 hash from a byte array
-func (h *HmacSha256) Hash(d ...[]byte) []byte {
+func (h *HmacSha256) Hash(d []byte) []byte {
 	hash := hmac.New(sha256.New, []byte(h.secret))
-	for _, value := range d {
-		hash.Write(value)
-	}
+	hash.Write(d)
 
 	return hash.Sum(nil)
 }

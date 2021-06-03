@@ -4,22 +4,23 @@ import (
 	"encoding/hex"
 	"fmt"
 	merkletree "github.com/wealdtech/go-merkletree"
+	"strings"
 )
 
 func MerkleSimple() {
-	secret := "mysecret"
+	secret := "secret"
 
 	// Data for the tree
 	data := [][]byte{
-		[]byte("john"),
-		[]byte("1/2/1970"),
-		[]byte("frankfurt/germany"),
-		[]byte("1234569"),
+		[]byte("bob"),
+		[]byte("1-1-1970"),
+		[]byte("berlin/germany"),
+		[]byte("1234567"),
 		[]byte("3531234567"),
 	}
 
 	// Create the tree
-	tree, err := merkletree.NewUsing(data, New(secret), false)
+	tree, err := merkletree.NewUsing(data, New(secret), []byte{})
 
 	if err != nil {
 		panic(err)
@@ -35,30 +36,27 @@ func MerkleSimple() {
 	//fmt.Println(dot)
 
 	// verifing using the merkle proof
-	proof, err := tree.GenerateProof(data[2], 0)
+	proof, err := tree.GenerateProof(data[2])
 	if err != nil {
 		panic(err)
 	}
+	webproof := []string{hex.EncodeToString(root), fmt.Sprint(proof.Index)}
+	for _, p := range proof.Hashes {
+		webproof = append(webproof, hex.EncodeToString(p))
+	}
+	fmt.Printf(">>>> proof:\n%s\n", strings.Join(webproof, ":"))
+
 	verified, err := merkletree.VerifyProofUsing(
 		data[2],
-		false,
 		proof,
-		[][]byte{root},
+		root,
 		New(secret),
+		[]byte{},
 	)
 	if !verified {
 		fmt.Println("failed to verify proof for data in tree")
 	}
 
-	// verifing using a pollard
-	pollard := tree.Pollard(2)
-	for _, data := range pollard {
-		fmt.Println(hex.EncodeToString(data))
-	}
-	verified = merkletree.VerifyPollardUsing(pollard, New(secret))
-	if err != nil {
-		panic(err)
-	}
 	if !verified {
 		fmt.Println("failed to verify proof for data in tree")
 	}
